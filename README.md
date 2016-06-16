@@ -3,17 +3,39 @@ seer_pipeline
 
 **Run seer with no headaches**
 
+SEER is a very interesting tool to run GWAS on bacterial datasets, but
+running it (especially on older OSes) requires using many different tools.
+
+This pipeline allows running SEER with one go, thus reducing unnecessary headaches.
+
 Usage
 -----
 
-Simply type:
+Place the two required input files (`input.txt` and `phenotypes.txt`) in
+the same directory as the Makefile. The `input.txt` file is a tab-delimited
+two-columns file in the format:
+
+    SAMPLE /PATH/TO/FASTA
+
+While the `phenotypes.txt` file is a tab-delimited three columns file in the format:
+
+    SAMPLE SAMPLE PHENOTYPE
+
+Once you have your files ready, simply type:
 
     make all
 
 Prerequisites
 -------------
 
-???
+* fsm-lite
+* mash
+* python (2.7+, 3.3+)
+* pandas 
+* perl
+* R (3.2+)
+* rhdf5
+* seer
 
 Copyright
 ---------
