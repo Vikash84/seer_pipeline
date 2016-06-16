@@ -74,7 +74,7 @@ $(ALLKMERS): $(KMERS) $(PROJECTIONOUT) $(PHENOTYPES)
 	-$(SEERDIR)seer -k $(KMERS) --pheno $(PHENOTYPES) --struct $(PROJECTION) --threads $(THREADS) --print_samples > $@
 
 $(FILTEREDKMERS): $(ALLKMERS)
-	-$(SEERDIR)filter_seer -k $< --maf $(MAF) --sort pval > $@
+	$(SEERDIR)filter_seer -k $< --maf $(MAF) --sort pval > $@
 
 all: seer
 seer: $(FILTEREDKMERS)
