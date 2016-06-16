@@ -2,10 +2,11 @@
 SRCDIR = $(CURDIR)/src
 FSMDIR = ~/software/bin/
 SEERDIR = ~/software/seer/
-MASHDIR = $(CURDIR)/mash
+MASHDIR = ~/software/bin/
+MASHOUTDIR = $(CURDIR)/mash
 
-$(MASHDIR):
-	mkdir -p $(MASHDIR)
+$(MASHOUTDIR):
+	mkdir -p $<
 
 # Parameters
 # fsm-lite
@@ -21,11 +22,18 @@ MAF = 0.05
 INPUT = input.txt
 PHENOTYPES = phenotypes.txt
 
+# Scripts to download
+SEERSCRIPT = $(SRCDIR)/R_mds.pl
+
+$(SEERSCRIPT):
+	wget -O $@ https://raw.githubusercontent.com/johnlees/seer/master/scripts/R_mds.pl
+
 # Output files
 FSMTMP = tmp.txt
 KMERS = kmers.gz
 DISTANCE = distances.csv
 PROJECTION = projection
+PROJECTIONOUT = $(PROJECTION).samples
 ALLKMERS = all.kmers
 FILTEREDKMERS = filtered.kmers
 
@@ -40,29 +48,29 @@ $(KMERS): $(INPUT)
 # Distance estimation #
 #######################
 
-$(DISTANCE): $(MASHDIR) $(INPUT)
+$(DISTANCE): $(MASHOUTDIR) $(INPUT)
 	for infile in $$(awk '{print $$2}' $(INPUT)); \
 	do \
-	  mash sketch $$infile -o $(MASHDIR)/$$(basename $$infile .fasta | awk -F '_' '{print $$1}'); \
+	  $(MASHDIR)mash sketch $$infile -o $(MASHOUTDIR)/$$(basename $$infile .fasta | awk -F '_' '{print $$1}'); \
 	done
-	for sketch in $$(find $(MASHDIR) -type f -name '*.msh');\
+	for sketch in $$(find $(MASHOUTDIR) -type f -name '*.msh');\
 	do \
-	  mash dist $$sketch $(MASHDIR)/*.msh > $(MASHDIR)/$$(basename $$sketch .msh).dist; \
+	  $(MASHDIR)mash dist $$sketch $(MASHOUTDIR)/*.msh > $(MASHOUTDIR)/$$(basename $$sketch .msh).dist; \
 	done
-	cat $(MASHDIR)/*.dist | $(SRCDIR)/mash2mat > $@
+	cat $(MASHOUTDIR)/*.dist | $(SRCDIR)/mash2mat > $@
 
 ##############
 # Projection #
 ##############
 
-$(PROJECTION): $(DISTANCE) $(PHENOTYPES)
-	perl $(SEERDIR)R_mds.pl -d $(DISTANCE) -p $(PHENOTYPES) -o $@
+$(PROJECTIONOUT): $(DISTANCE) $(PHENOTYPES) $(SEERSCRIPT)
+	perl $(SEERSCRIPT) -d $(DISTANCE) -p $(PHENOTYPES) -o $(PROJECTION)
 
 ########
 # Seer #
 ########
 
-$(ALLKMERS): $(KMERS) $(PROJECTION) $(PHENOTYPES)
+$(ALLKMERS): $(KMERS) $(PROJECTIONOUT) $(PHENOTYPES)
 	$(SEERDIR)seer -k $(KMERS) --pheno $(PHENOTYPES) --struct $(PROJECTION) --threads $(THREADS) --print_samples > $@
 
 $(FILTEREDKMERS): $(ALLKMERS)
