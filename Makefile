@@ -6,7 +6,7 @@ MASHDIR = ~/software/bin/
 MASHOUTDIR = $(CURDIR)/mash
 
 $(MASHOUTDIR):
-	mkdir -p $<
+	mkdir -p $@
 
 # Parameters
 # fsm-lite
