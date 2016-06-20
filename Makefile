@@ -93,10 +93,10 @@ $(FILTEREDKMERS): $(ALLKMERS)
 # Mapping #
 ###########
 
-$(POSFASTQ): $(FILTEREDKMERS)
-	$(SRCDIR)/kmers2fastq $< --beta positive > $@
-$(NEGFASTQ): $(FILTEREDKMERS)
-	$(SRCDIR)/kmers2fastq $< --beta negative > $@
+$(POSFASTQ):
+	$(SRCDIR)/kmers2fastq $(FILTEREDKMERS) --beta positive > $@
+$(NEGFASTQ):
+	$(SRCDIR)/kmers2fastq $(FILTEREDKMERS) --beta negative > $@
 
 $(POSMAPPINGDONE): $(POSMAPDIR) $(POSFASTQ)
 	for sample in $$(awk '{print $$1}' $(INPUT)); \
