@@ -3,9 +3,18 @@ SRCDIR = $(CURDIR)/src
 FSMDIR = ~/software/bin/
 SEERDIR = ~/software/seer/
 MASHDIR = ~/software/bin/
+INDEXESDIR = ../indexes
+GFFDIR = ../gff
+# Output directories
 MASHOUTDIR = $(CURDIR)/mash
+POSMAPDIR = $(CURDIR)/positive_mappings
+NEGMAPDIR = $(CURDIR)/negative_mappings
 
 $(MASHOUTDIR):
+	mkdir -p $@
+$(POSMAPDIR):
+	mkdir -p $@
+$(NEGMAPDIR):
 	mkdir -p $@
 
 # Parameters
@@ -36,7 +45,10 @@ PROJECTION = projection
 PROJECTIONOUT = $(PROJECTION).samples
 ALLKMERS = all.kmers
 FILTEREDKMERS = filtered.kmers
-FASTQ = kmers.fastq
+POSFASTQ = positive_kmers.fastq
+NEGFASTQ = negative_kmers.fastq
+POSMAPPINGDONE = positive_mapping.done
+NEGMAPPINGDONE = negative_mapping.done
 
 ####################
 # Kmers generation #
@@ -81,8 +93,26 @@ $(FILTEREDKMERS): $(ALLKMERS)
 # Mapping #
 ###########
 
-$(FASTQ): $(FILTEREDKMERS)
-	$(SEERDIR)scripts/hits_to_fastq.pl -k $< -b 10e-8 > $@
+$(POSFASTQ): $(FILTEREDKMERS)
+	$(SRCDIR)/kmers2fastq $< --beta positive > $@
+$(NEGFASTQ): $(FILTEREDKMERS)
+	$(SRCDIR)/kmers2fastq $< --beta negative > $@
+
+$(POSMAPPINGDONE): $(POSMAPDIR) $(POSFASTQ)
+	for sample in $$(awk '{print $$1}' $(INPUT)); \
+	do \
+	  bowtie2 -q -U $(POSFASTQ) --ignore-quals -D 24 -R 3 -N 0 -L 7 -i S,1,0.50 -x $(INDEXESDIR)/$$sample | samtools view -bS -o $(POSMAPDIR)/$$sample".bam"; \
+	  bedtools intersect -a $(GFFDIR)/$$sample".gff" -b $(POSMAPDIR)/$$sample".bam" > $(POSMAPDIR)/$$sample && rm $(POSMAPDIR)/$$sample".bam"; \
+	done
+	touch $@
+
+$(NEGMAPPINGDONE): $(NEGMAPDIR) $(NEGFASTQ)
+	for sample in $$(awk '{print $$1}' $(INPUT)); \
+	do \
+	  bowtie2 -q -U $(NEGFASTQ) --ignore-quals -D 24 -R 3 -N 0 -L 7 -i S,1,0.50 -x $(INDEXESDIR)/$$sample | samtools view -bS -o $(NEGMAPDIR)/$$sample".bam"; \
+	  bedtools intersect -a $(GFFDIR)/$$sample".gff" -b $(NEGMAPDIR)/$$sample".bam" > $(NEGMAPDIR)/$$sample && rm $(NEGMAPDIR)/$$sample".bam"; \
+	done
+	touch $@
 
 ###########
 # Targets #
@@ -90,6 +120,6 @@ $(FASTQ): $(FILTEREDKMERS)
 
 all: seer
 seer: $(FILTEREDKMERS)
-mapping: $(FASTQ)
+map: $(POSMAPPINGDONE) $(NEGMAPPINGDONE)
 
-.PHONY: all seer mapping
+.PHONY: all seer map
