@@ -36,6 +36,7 @@ PROJECTION = projection
 PROJECTIONOUT = $(PROJECTION).samples
 ALLKMERS = all.kmers
 FILTEREDKMERS = filtered.kmers
+FASTQ = kmers.fastq
 
 ####################
 # Kmers generation #
@@ -76,7 +77,19 @@ $(ALLKMERS): $(KMERS) $(PROJECTIONOUT) $(PHENOTYPES)
 $(FILTEREDKMERS): $(ALLKMERS)
 	$(SEERDIR)filter_seer -k $< --maf $(MAF) --sort pval > $@
 
+###########
+# Mapping #
+###########
+
+$(FASTQ): $(FILTEREDKMERS)
+	$(SEERDIR)scripts/hits_to_fastq.pl -k $< -b 10e-8 > $@
+
+###########
+# Targets #
+###########
+
 all: seer
 seer: $(FILTEREDKMERS)
+mapping: $(FASTQ)
 
-.PHONY: all seer
+.PHONY: all seer mapping
