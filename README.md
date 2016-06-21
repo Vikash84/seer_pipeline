@@ -36,6 +36,8 @@ Prerequisites
 * R (3.2+)
 * rhdf5
 * seer
+* bowtie2
+* bedtools
 
 Copyright
 ---------
