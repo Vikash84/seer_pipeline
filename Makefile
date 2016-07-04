@@ -103,7 +103,7 @@ $(POSMAPPINGDONE): $(POSMAPDIR) $(POSFASTQ)
 	for sample in $$(awk '{print $$1}' $(INPUT)); \
 	do \
 	  bowtie2 -q -U $(POSFASTQ) --ignore-quals -D 24 -R 3 -N 0 -L 7 -i S,1,0.50 -x $(INDEXESDIR)/$$sample > $(POSMAPDIR)/$$sample".sam"; \
-	  samtools view -bS $(POSMAPDIR)/$$sample".sam" -o $(POSMAPDIR)/$$sample".bam" && $(POSMAPDIR)/$$sample".sam"; \
+	  samtools view -bS $(POSMAPDIR)/$$sample".sam" -o $(POSMAPDIR)/$$sample".bam" && rm $(POSMAPDIR)/$$sample".sam"; \
 	  bedtools intersect -a $(GFFDIR)/$$sample".$(GFFEXT)" -b $(POSMAPDIR)/$$sample".bam" > $(POSMAPDIR)/$$sample && rm $(POSMAPDIR)/$$sample".bam"; \
 	done
 	touch $@
@@ -112,7 +112,7 @@ $(NEGMAPPINGDONE): $(NEGMAPDIR) $(NEGFASTQ)
 	for sample in $$(awk '{print $$1}' $(INPUT)); \
 	do \
 	  bowtie2 -q -U $(NEGFASTQ) --ignore-quals -D 24 -R 3 -N 0 -L 7 -i S,1,0.50 -x $(INDEXESDIR)/$$sample > $(NEGMAPDIR)/$$sample".sam"; \
-	  samtools view -bS $(NEGMAPDIR)/$$sample".sam" -o $(NEGMAPDIR)/$$sample".bam" && $(NEGMAPDIR)/$$sample".sam"; \
+	  samtools view -bS $(NEGMAPDIR)/$$sample".sam" -o $(NEGMAPDIR)/$$sample".bam" && rm $(NEGMAPDIR)/$$sample".sam"; \
 	  bedtools intersect -a $(GFFDIR)/$$sample".$(GFFEXT)" -b $(NEGMAPDIR)/$$sample".bam" > $(NEGMAPDIR)/$$sample && rm $(NEGMAPDIR)/$$sample".bam"; \
 	done
 	touch $@
