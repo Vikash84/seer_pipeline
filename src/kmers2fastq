@@ -39,6 +39,10 @@ def get_options():
                         choices=['positive', 'negative', 'both'],
                         default='both',
                         help='Which beta should be considered [Default: both]')
+    parser.add_argument('--pvalue', action='store',
+                        default=None,
+                        type=float,
+                        help='P-value cutoff [Default: no cutoff]')
 
     return parser.parse_args()
 
@@ -49,6 +53,9 @@ if __name__ == "__main__":
     for l in open(options.kmers):
         kmer, maf, pval, unknown, beta, unknown2 = l.rstrip().split('\t')
         beta  = float(beta)
+
+        if options.pvalue is not None and float(pval) > options.pvalue:
+            continue
 
         if options.beta == 'both':
             print('@%d\n%s\n+\n%s' % (

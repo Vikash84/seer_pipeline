@@ -27,6 +27,8 @@ FSMMINFILES = 2
 # seer
 THREADS = 1
 MAF = 0.05
+# filter kmers
+PVALUE = 
 
 # Input files
 INPUT = input.txt
@@ -95,9 +97,9 @@ $(FILTEREDKMERS): $(ALLKMERS)
 ###########
 
 $(POSFASTQ):
-	$(SRCDIR)/kmers2fastq $(FILTEREDKMERS) --beta positive > $@
+	$(SRCDIR)/kmers2fastq $(FILTEREDKMERS) --beta positive $(PVALUE) > $@
 $(NEGFASTQ):
-	$(SRCDIR)/kmers2fastq $(FILTEREDKMERS) --beta negative > $@
+	$(SRCDIR)/kmers2fastq $(FILTEREDKMERS) --beta negative $(PVALUE) > $@
 
 $(POSMAPPINGDONE): $(POSMAPDIR) $(POSFASTQ)
 	for sample in $$(awk '{print $$1}' $(INPUT)); \
