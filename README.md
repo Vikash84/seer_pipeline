@@ -56,6 +56,15 @@ The indexes and GFF/BED files should have the same naming scheme as the SAMPLE i
 the input files; assemblies should have either the `.gff` or `.bed` extension, depending
 on the value of your `GFFEXT` variable in the `Makefile`.
 
+Further configuration
+---------------------
+
+Any other parameter can be changed thanks to `make`: all those parameters are listed on the top
+lines of the `Makefile`. If you have the `fsm-lite` or `seer` binaries somewhere else other than
+`~/software/bin/` or `~/software/seer/` you can either edit the `Makefile` or type;
+
+    make seer FSMDIR=/path/to/fsm-lite/directory SEERDIR=/path/to/seer/directory
+
 Prerequisites
 -------------
 
