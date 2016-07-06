@@ -28,7 +28,7 @@ FSMMINFILES = 2
 THREADS = 1
 MAF = 0.05
 # filter kmers
-PVALUE = 
+PVALUE = 1E-8 
 
 # Input files
 INPUT = input.txt
@@ -123,7 +123,7 @@ $(NEGMAPPINGDONE): $(NEGMAPDIR) $(NEGFASTQ)
 # Targets #
 ###########
 
-all: seer
+all: seer map
 seer: $(FILTEREDKMERS)
 map: $(POSMAPPINGDONE) $(NEGMAPPINGDONE)
 
